@@ -419,6 +419,7 @@
             font-style: italic;
         }
 
+
         .contact {
             padding: 100px 0;
             text-align: center;
@@ -708,7 +709,7 @@
     const submitBtn = document.getElementById('submit-idea-btn');
 
     // --- Gemini API Integration ---
-    const GEMINI_API_KEY = "AIzaSyC7cP_Sjs3k9ka7R0zsXwhWc0AYZe3qmi0"; 
+    const GEMINI_API_KEY = "AIzaSyBAgEC8NKYeGvaDtteuXgib2coBhp6L1KE"; // Add your Gemini API key here
 
     const ideaGenBtn = document.getElementById('generate-ideas-btn');
     const projectIdeasContainer = document.getElementById('project-ideas-container');
@@ -721,7 +722,7 @@
     let chatHistory = [{ role: "user", parts: [{ text: portfolioContext }] }];
 
     function hasApiKey() {
-        return GEMINI_API_KEY && GEMINI_API_KEY !== "AIzaSyC7cP_Sjs3k9ka7R0zsXwhWc0AYZe3qmi0";
+        return GEMINI_API_KEY && GEMINI_API_KEY !== "";
     }
 
     async function callGemini(prompt, isJson = false) {
