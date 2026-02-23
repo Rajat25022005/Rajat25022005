@@ -1,7 +1,7 @@
 <div align="center">
 
 # Rajat Malik
-**AI / ML Engineer · Research-Oriented Systems · Autonomous Intelligence**
+**AI / ML Engineer · Self-Supervised Learning · Reasoning Systems**
 
 [LinkedIn](https://linkedin.com/in/rajat-malik-a62876278) ·
 [Email](mailto:rajatmalik5039@gmail.com) ·
@@ -11,154 +11,144 @@
 
 <br/>
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=500&size=22&pause=1200&color=6AE3FF&center=true&vCenter=true&width=720&lines=Spatio-Temporal+Reasoning+in+Video;Graph-Based+Memory+and+Retrieval;Agentic+Systems+and+Autonomous+Planning;From+Research+Models+to+Production+Systems" />
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=500&size=22&pause=1200&color=6AE3FF&center=true&vCenter=true&width=820&lines=Latent+Chain-of-Thought+Reasoning;Self-Supervised+Text+Representation+(JEPA);Spatio-Temporal+Reasoning+in+Video;Agentic+Systems+and+Autonomous+Planning" />
 
 </div>
 
 ---
 
-## Research Summary
+## About
 
-B.E. Computer Science (AI & ML), Chandigarh University  
-Python Developer Intern, EDSHODH  
+B.E. Computer Science (AI & ML), Chandigarh University · Python Developer Intern, EDSHODH
 
-I work on **applied AI systems** that lie at the intersection of **representation learning**, **reasoning**, and **systems engineering**. My primary interest is in enabling models to move beyond perception toward **structured understanding**, **causal reasoning**, and **long-horizon autonomy**.
+I build **research-grade AI systems** at the intersection of **self-supervised learning**, **latent-space reasoning**, and **autonomous intelligence**. My work focuses on teaching models to reason and represent meaning without relying on expensive supervision — no labels, no RL, no chain-of-thought annotations.
 
-My work emphasizes:
-- Learning and reasoning over **time and structure**
-- Explicit memory via **graphs and retrieval**
-- Multi-agent decomposition of complex tasks
-- Translating research ideas into deployable systems
+Current focus: **JEPA-family objectives for language and reasoning** — predicting structure in latent space rather than reconstructing tokens.
 
 ---
 
-## Research & Engineering Projects
+## Research Projects
 
-### Argus-V  
+---
+
+###  think-in-silence
+**Latent Chain-of-Thought Reasoning — No Tokens, No RL, No CoT Labels**
+
+Most models think out loud. This one doesn't.
+
+think-in-silence implements **LC-Thought**: a reasoning architecture where the entire chain of thought exists only as latent vectors — never decoded to tokens. A recurrent cross-attention **ThoughtModule** runs K steps, each refining an internal thought vector by attending to the question context. Training uses a JEPA-style MSE objective against an EMA teacher encoder.
+
+```
+Question → Encoder (frozen) → ThoughtModule (K steps) → Predictor → pred
+                                h₀ → h₁ → h₂ → ... → hₖ                     MSE ↕
+Answer  → EMA Teacher Encoder ─────────────────────────────────────────► target
+```
+
+**What makes it different from Coconut / Quiet-STaR:**
+- Dedicated reasoning module — backbone stays frozen
+- Pure JEPA MSE training signal — no RL, no token supervision  
+- K is a runtime parameter — more think time at inference, no retraining
+
+**Trained on:** GSM8K · HotpotQA · CommonsenseQA · ARC-Challenge · StrategyQA  
+**Key experiment:** Same checkpoint evaluated at K=1,2,4,8,16 — "think time = performance" curve
+
+**Stack:** PyTorch · HuggingFace Transformers · Streaming QA datasets
+
+🔗 [github.com/Rajat25022005/think-in-silence](https://github.com/Rajat25022005/think-in-silence)
+
+---
+
+###  T-JEPA
+**Text Joint Embedding Predictive Architecture — Self-Supervised Semantic Learning**
+
+A text adaptation of Meta's I-JEPA. Instead of predicting masked tokens, T-JEPA predicts **masked span representations in latent space** — forcing the model to learn semantics, not surface patterns.
+
+```
+Masked text → Student Encoder → Predictor → pred ∈ ℝ²⁵⁶
+Clean text  → EMA Teacher   ─────────────────────► target
+                               MSE in latent space
+```
+
+**Results vs DistilBERT** (trained on 30× less data):
+
+| Metric | T-JEPA | DistilBERT |
+|--------|--------|-----------|
+| Masked Reconstruction Quality | **89.8%** ★ | −19.0% |
+| Semantic Gap (MRPC) | **0.084** ★ | 0.014 |
+| Recall@1 | 0.562 | **0.841** ★ |
+| 5-Shot Accuracy | 0.433 | **0.745** ★ |
+
+T-JEPA wins decisively on JEPA-specific metrics. DistilBERT wins classification — explained entirely by the 30× data gap, not the objective. Currently training on the full BookCorpus + Wikipedia corpus (16 GB, same as DistilBERT) using streaming mode.
+
+**Stack:** PyTorch · DistilBERT · WikiText-103 → BookCorpus + Wikipedia · NVIDIA L4
+
+ [github.com/Rajat25022005/self-supervised-text-jepa](https://github.com/Rajat25022005/self-supervised-text-jepa)
+
+---
+
+###  Argus-V
 **Spatio-Temporal Video Reasoning with Causal Graphs**
 
-Argus-V is a research-oriented system for extracting **events, actors, and causal structure** from video. Rather than treating video as independent frames, the system models **temporal continuity**, **physical intuition**, and **entity relationships**.
+Argus-V extracts **events, actors, and causal structure** from video — modelling temporal continuity, physical intuition, and entity relationships rather than treating frames independently.
 
-**Research Focus**
-- Self-supervised video representation learning (V-JEPA)
+- Self-supervised video representation (V-JEPA)
 - Event abstraction and temporal segmentation
 - Causal graph construction over actors and actions
-- Queryable long-term memory via GraphRAG
+- Queryable long-term memory via GraphRAG + Neo4j
 
-**Architecture Overview**
-- Video → latent world model (physics-aware)
-- Event nodes and temporal edges in Neo4j
-- Identity grounding for actor consistency
-- Graph-based retrieval for reasoning queries
+**Stack:** Python · V-JEPA · Neo4j · GraphRAG · DeepFace
 
-**Stack**  
-Python · V-JEPA · Neo4j · GraphRAG · DeepFace  
-
-Repository:  
-https://github.com/Rajat25022005/argus-V-graph-reasoning
+ [github.com/Rajat25022005/argus-V-graph-reasoning](https://github.com/Rajat25022005/argus-V-graph-reasoning)
 
 ---
 
-### Nexus Workplace AI  
+###  Nexus Workplace AI
 **Persistent Memory for Human–AI Collaboration**
 
-Nexus is an agent-augmented collaboration platform exploring how **LLMs can maintain long-term, shared context** within a team environment. The focus is on **memory**, **retrieval**, and **real-time interaction**, not chatbot behavior.
+Agent-augmented collaboration platform exploring how LLMs can maintain **long-term, shared context** within a team. Focus on workspace-level semantic memory, cross-lingual embedding alignment, and real-time human–agent interaction.
 
-**Key Ideas**
-- Workspace-level semantic memory using RAG
-- Cross-lingual embedding alignment
-- Real-time human–agent interaction
-- Cloud-native, multi-tenant design
+**Stack:** React · Node.js · Socket.IO · Azure · Vector Search
 
-**Stack**  
-React · Node.js · Socket.IO · Azure · Vector Search  
-
-Repository:  
-https://github.com/Rajat25022005/Nexus-chat
+ [github.com/Rajat25022005/Nexus-chat](https://github.com/Rajat25022005/Nexus-chat)
 
 ---
 
-### Multi-Agent Task Orchestrator  
+###  Multi-Agent Task Orchestrator
 **Autonomous Planning, Execution, and Repair**
 
-This project investigates how complex objectives can be decomposed and solved via **specialized cooperating agents**. The system separates planning, execution, and validation, enabling **self-correction** and iterative refinement.
+Investigates how complex objectives can be decomposed and solved via specialised cooperating agents — separating planning, execution, and validation to enable self-correction and iterative refinement.
 
-**Concepts Explored**
-- Planner–executor abstraction
-- Autonomous error detection and repair
-- Tool-augmented reasoning
-- Secure execution environments
+**Stack:** Python · Ollama · LangChain
 
-**Stack**  
-Python · Ollama · LangChain  
-
-Repository:  
-https://github.com/Rajat25022005/Multiagents
+ [github.com/Rajat25022005/Multiagents](https://github.com/Rajat25022005/Multiagents)
 
 ---
 
-### Offline Smart Email Assistant  
-**On-Device LLM Systems for Privacy-Critical Workflows**
+## Technical Stack
 
-A fully offline email assistant designed to explore **local inference**, **context retrieval**, and **privacy-preserving AI**. The system avoids cloud dependency while maintaining usable performance.
+**ML & Research**  
+Self-Supervised Learning · JEPA Objectives · EMA Teachers · Representation Learning  
+Latent-Space Reasoning · Agentic Systems · GraphRAG · Knowledge Graphs  
+Spatio-Temporal Modelling · Computer Vision · LLM Systems
 
-**Focus Areas**
-- Local LLM inference pipelines
-- Context-aware generation
-- Practical privacy constraints
-
-**Stack**  
-Python · Ollama · Gemma · Gmail API  
-
-Repository:  
-https://github.com/Rajat25022005/Intelligent-Mail-Assistant--Accelerated-
-
----
-
-## Technical Background
-
-**Programming**  
-Python · JavaScript · SQL · C++
-
-**Machine Learning & AI**  
-Representation Learning · Agentic Systems ·  
-GraphRAG · Knowledge Graphs ·  
-Spatio-Temporal Modeling · Computer Vision ·  
-Vector Search · LLM Systems
-
-**Systems & Infrastructure**  
+**Engineering**  
+Python · PyTorch · HuggingFace · JavaScript · SQL · C++  
 Docker · Linux · Azure · Git · Ollama · Full-Stack Web
 
 ---
 
-## Current Research Interests
-
-- Spatio-temporal abstraction in video models  
-- Graph-based memory for long-horizon reasoning  
-- Reliability and evaluation of autonomous agents  
-- Offline-first and privacy-preserving AI systems  
-
----
-
-## Credentials
-
-- TensorFlow 2.0 — Udemy  
-- Microsoft AI Fundamentals  
-- LinkedIn Generative AI Series  
-
----
-
-## GitHub Signals
+## GitHub
 
 <p align="center">
-  <img height="165" src="https://github-readme-stats.vercel.app/api?username=Rajat25022005&show_icons=true&hide_border=true" />
-  <img height="165" src="https://github-readme-streak-stats.herokuapp.com/?user=Rajat25022005&hide_border=true" />
+  <img height="165" src="https://github-readme-stats.vercel.app/api?username=Rajat25022005&show_icons=true&hide_border=true&theme=tokyonight" />
+  <img height="165" src="https://github-readme-streak-stats.herokuapp.com/?user=Rajat25022005&hide_border=true&theme=tokyonight" />
 </p>
 
 ---
 
 <div align="center">
   <sub>
-    Interested in applied research roles, AI engineering internships, and collaborative research projects.
+    Open to applied research roles, AI engineering internships, and collaborative research.  
+    Most interested in self-supervised learning, reasoning systems, and latent-space objectives.
   </sub>
 </div>
