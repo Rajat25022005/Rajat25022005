@@ -122,7 +122,7 @@ Investigates how complex objectives can be decomposed and solved via specialised
 
  [github.com/Rajat25022005/Multiagents](https://github.com/Rajat25022005/Multiagents)
 
----
+----
 
 ## Technical Stack
 
