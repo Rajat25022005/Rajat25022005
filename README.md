@@ -145,10 +145,6 @@ Docker · Linux · Azure · Git · Ollama · Full-Stack Web
 </p>
 
 ---
-
-<div align="center">
-  <sub>
-    Open to applied research roles, AI engineering internships, and collaborative research.  
-    Most interested in self-supervised learning, reasoning systems, and latent-space objectives.
-  </sub>
-</div>
+---
+---
+===
