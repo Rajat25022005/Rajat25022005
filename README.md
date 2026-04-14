@@ -31,59 +31,25 @@ Current focus: **JEPA-family objectives for language and reasoning** — predict
 
 ---
 
-###  think-in-silence
-**Latent Chain-of-Thought Reasoning — No Tokens, No RL, No CoT Labels**
-
-Most models think out loud. This one doesn't.
-
-think-in-silence implements **LC-Thought**: a reasoning architecture where the entire chain of thought exists only as latent vectors — never decoded to tokens. A recurrent cross-attention **ThoughtModule** runs K steps, each refining an internal thought vector by attending to the question context. Training uses a JEPA-style MSE objective against an EMA teacher encoder.
-
-```
-Question → Encoder (frozen) → ThoughtModule (K steps) → Predictor → pred
-                                h₀ → h₁ → h₂ → ... → hₖ                     MSE ↕
-Answer  → EMA Teacher Encoder ─────────────────────────────────────────► target
-```
-
-**What makes it different from Coconut / Quiet-STaR:**
-- Dedicated reasoning module — backbone stays frozen
-- Pure JEPA MSE training signal — no RL, no token supervision  
-- K is a runtime parameter — more think time at inference, no retraining
-
-**Trained on:** GSM8K · HotpotQA · CommonsenseQA · ARC-Challenge · StrategyQA  
-**Key experiment:** Same checkpoint evaluated at K=1,2,4,8,16 — "think time = performance" curve
-
-**Stack:** PyTorch · HuggingFace Transformers · Streaming QA datasets
-
-🔗 [github.com/Rajat25022005/think-in-silence](https://github.com/Rajat25022005/think-in-silence)
-
----
-
-###  T-JEPA
-**Text Joint Embedding Predictive Architecture — Self-Supervised Semantic Learning**
-
-A text adaptation of Meta's I-JEPA. Instead of predicting masked tokens, T-JEPA predicts **masked span representations in latent space** — forcing the model to learn semantics, not surface patterns.
-
-```
-Masked text → Student Encoder → Predictor → pred ∈ ℝ²⁵⁶
-Clean text  → EMA Teacher   ─────────────────────► target
-                               MSE in latent space
-```
-
-**Results vs DistilBERT** (trained on 30× less data):
-
-| Metric | T-JEPA | DistilBERT |
-|--------|--------|-----------|
-| Masked Reconstruction Quality | **89.8%** ★ | −19.0% |
-| Semantic Gap (MRPC) | **0.084** ★ | 0.014 |
-| Recall@1 | 0.562 | **0.841** ★ |
-| 5-Shot Accuracy | 0.433 | **0.745** ★ |
-
-T-JEPA wins decisively on JEPA-specific metrics. DistilBERT wins classification — explained entirely by the 30× data gap, not the objective. Currently training on the full BookCorpus + Wikipedia corpus (16 GB, same as DistilBERT) using streaming mode.
-
-**Stack:** PyTorch · DistilBERT · WikiText-103 → BookCorpus + Wikipedia · NVIDIA L4
-
- [github.com/Rajat25022005/self-supervised-text-jepa](https://github.com/Rajat25022005/self-supervised-text-jepa)
-
+### [think-in-silence](https://github.com/Rajat25022005/think-in-silence) — Latent Reasoning Without Chain-of-Thought
+ 
+> A model that reasons in pure embedding space. No tokens. No CoT labels. No RL.
+ 
+K learned thought vectors run through a recurrent cross-attention chain before any answer is produced. Trained only on `(question, answer)` pairs via a JEPA MSE objective with an EMA teacher. The backbone is fully frozen — all reasoning happens in a dedicated 17M-parameter ThoughtModule.
+ 
+**Empirical results (same checkpoint, varying K at inference):**
+ 
+| K steps | R@1 | BLEU | ROUGE-1 |
+|:-------:|:---:|:----:|:-------:|
+| 0 (none) | 0.20% | 0.000 | 0.000 |
+| 4 | **50.4%** | 0.044 | 0.218 |
+| 8 | 47.5% | **0.231** | **0.594** |
+ 
+K = 0 produces zero scores — the ThoughtModule does real work, not memorisation.
+K is adjustable at inference with no retraining.
+ 
+**Model weights:** [`rajat5039/think-in-silence`](https://huggingface.co/rajat5039/think-in-silence) · **Dataset:** [`rajatmalik/wiki-multihop-qa-500k`](https://huggingface.co/datasets/rajatmalik/wiki-multihop-qa-500k) (504K pairs)
+ 
 ---
 
 ###  Argus-V
@@ -125,26 +91,39 @@ Investigates how complex objectives can be decomposed and solved via specialised
 ----
 
 ## Technical Stack
-
-**ML & Research**  
-Self-Supervised Learning · JEPA Objectives · EMA Teachers · Representation Learning  
-Latent-Space Reasoning · Agentic Systems · GraphRAG · Knowledge Graphs  
-Spatio-Temporal Modelling · Computer Vision · LLM Systems
-
-**Engineering**  
-Python · PyTorch · HuggingFace · JavaScript · SQL · C++  
-Docker · Linux · Azure · Git · Ollama · Full-Stack Web
-
+ 
+**Languages**
+ 
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+![C++](https://img.shields.io/badge/C++-00599C?style=flat-square&logo=cplusplus&logoColor=white)
+![SQL](https://img.shields.io/badge/SQL-4479A1?style=flat-square&logo=postgresql&logoColor=white)
+ 
+**ML / AI**
+ 
+![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)
+![HuggingFace](https://img.shields.io/badge/🤗_Transformers-FFD21E?style=flat-square)
+![LangChain](https://img.shields.io/badge/LangChain-1C3C3C?style=flat-square&logo=langchain&logoColor=white)
+![LangGraph](https://img.shields.io/badge/LangGraph-1C3C3C?style=flat-square)
+![Ollama](https://img.shields.io/badge/Ollama-000000?style=flat-square)
+ 
+**Data / Retrieval**
+ 
+![Neo4j](https://img.shields.io/badge/Neo4j-008CC1?style=flat-square&logo=neo4j&logoColor=white)
+![Qdrant](https://img.shields.io/badge/Qdrant-DC244C?style=flat-square)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white)
+![ChromaDB](https://img.shields.io/badge/ChromaDB-orange?style=flat-square)
+ 
+**Backend / Infra**
+ 
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
+![GCP](https://img.shields.io/badge/GCP-4285F4?style=flat-square&logo=googlecloud&logoColor=white)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black)
+ 
 ---
-
-## GitHub
-
-<p align="center">
-  <img height="165" src="https://github-readme-stats.vercel.app/api?username=Rajat25022005&show_icons=true&hide_border=true&theme=tokyonight" />
-  <img height="165" src="https://github-readme-streak-stats.herokuapp.com/?user=Rajat25022005&hide_border=true&theme=tokyonight" />
-</p>
-
 ---
----
----
-===
+ 
